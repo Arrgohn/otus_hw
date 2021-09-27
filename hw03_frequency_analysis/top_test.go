@@ -48,6 +48,41 @@ func TestTop10(t *testing.T) {
 		require.Len(t, Top10(""), 0)
 	})
 
+	t.Run("only spaces", func(t *testing.T) {
+		require.Len(t, Top10("    "), 0)
+	})
+
+	t.Run("different registry", func(t *testing.T) {
+		expected := []string{
+			"ЭтО", // 2
+			"Это", // 2
+			"это", // 2
+		}
+		require.Equal(t, expected, Top10("Это это Это это ЭтО ЭтО"))
+	})
+
+	t.Run("punctuation marks", func(t *testing.T) {
+		expected := []string{
+			",",   // 3
+			"Это", // 3
+			"то",  // 1
+			"это", // 1
+		}
+		require.Equal(t, expected, Top10("Это это , Это , то Это ,"))
+	})
+
+	t.Run("words with dashes and punctuations", func(t *testing.T) {
+		expected := []string{
+			"-",        // 1
+			"A",        // 1
+			"A-",       // 1
+			"a-",       // 1
+			`Пу-ух!"`,  // 1
+			`Пу-ух!"-`, // 1
+		}
+		require.Equal(t, expected, Top10(`Пу-ух!"- Пу-ух!" a- A- A - `))
+	})
+
 	t.Run("positive test", func(t *testing.T) {
 		if taskWithAsteriskIsCompleted {
 			expected := []string{
