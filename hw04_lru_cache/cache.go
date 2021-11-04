@@ -31,6 +31,9 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 		return true
 	}
 
+	el := l.queue.PushFront(cacheItem{key: string(key), value: value})
+	l.items[key] = el
+
 	if len(l.items) > l.capacity{
 		el := l.queue.Back()
 
@@ -39,10 +42,6 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 		key := el.Value.(cacheItem).key
 		delete(l.items, Key(key))
 	}
-
-	el := l.queue.PushFront(cacheItem{key: string(key), value: value})
-
-	l.items[key] = el
 
 	return false
 }
@@ -55,6 +54,7 @@ func (l lruCache) Get(key Key) (interface{}, bool) {
 		el := l.items[key]
 
 		l.queue.MoveToFront(el)
+		l.items[key] = l.queue.Front()
 
 		return el.Value.(cacheItem).value, true
 	}
@@ -63,6 +63,9 @@ func (l lruCache) Get(key Key) (interface{}, bool) {
 }
 
 func (l *lruCache) Clear() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	l.queue = NewList()
 	l.items = make(map[Key]*ListItem, l.capacity)
 }
