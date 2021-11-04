@@ -18,12 +18,14 @@ type ListItem struct {
 
 type list struct {
 	back  *ListItem
-	front  *ListItem
-	len  int
+	front *ListItem
+	len   int
 }
 
 func (l *list) Len() int {
-	{ return l.len }
+	{
+		return l.len
+	}
 }
 
 func (l *list) Front() *ListItem {

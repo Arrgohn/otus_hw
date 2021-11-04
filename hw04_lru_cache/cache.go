@@ -15,7 +15,7 @@ type Cache interface {
 type lruCache struct {
 	capacity int
 	queue    List
-	mu *sync.Mutex
+	mu       *sync.Mutex
 	items    map[Key]*ListItem
 }
 
@@ -34,7 +34,7 @@ func (l lruCache) Set(key Key, value interface{}) bool {
 	el := l.queue.PushFront(cacheItem{key: string(key), value: value})
 	l.items[key] = el
 
-	if len(l.items) > l.capacity{
+	if len(l.items) > l.capacity {
 		el := l.queue.Back()
 
 		l.queue.Remove(el)
@@ -79,7 +79,7 @@ func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
 		queue:    NewList(),
-		mu: &sync.Mutex{},
+		mu:       &sync.Mutex{},
 		items:    make(map[Key]*ListItem, capacity),
 	}
 }
