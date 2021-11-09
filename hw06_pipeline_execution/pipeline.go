@@ -11,19 +11,18 @@ type Stage func(in In) (out Out)
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	resStream := in
 
-	for _,stage := range stages {
-		select {
-		case <-done:
-			return resStream
-		default:
-			resStream = checkDone(done, stage(resStream))
+	for _, stage := range stages {
+		if stage == nil {
+			continue
 		}
+
+		resStream = checkDone(done, stage(resStream))
 	}
 
 	return resStream
 }
 
-func checkDone(done <-chan interface{}, in <-chan interface{}) <-chan interface{} {
+func checkDone(done In, in In) Out {
 	ch := make(chan interface{})
 	go func() {
 		defer close(ch)
