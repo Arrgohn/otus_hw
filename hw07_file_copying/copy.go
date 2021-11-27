@@ -2,47 +2,61 @@ package main
 
 import (
 	"errors"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
-var ErrNoOption = errors.New("option not found")
-var ErrNoFile = errors.New("file not found")
-var ErrLimitExcess = errors.New("limit exceed")
-var ErrWrongOffset = errors.New("wrong offset")
-var ErrWrongFileSize = errors.New("wrong file size")
+var (
+	ErrUnsupportedFile       = errors.New("unsupported file")
+	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
+	ErrNoOption              = errors.New("option not found")
+	ErrLimitExcess           = errors.New("limit exceed")
+	ErrWrongFileSize         = errors.New("wrong file size")
+)
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-	err := checkOptions()
+	err := checkOptions(fromPath, toPath)
 	if err != nil {
 		return err
 	}
 
-	fileFrom, err := open(from)
-	defer fileFrom.Close()
+	fileFrom, err := open(fromPath)
+	defer func(fileFrom *os.File) {
+		err := fileFrom.Close()
+		if err != nil {
+			return
+		}
+	}(fileFrom)
+
 	if err != nil {
 		return err
 	}
 
-	fileTo, err := create(to)
+	fileTo, err := create(toPath)
 	if err != nil {
 		return errors.New("smth wrong")
 	}
-	defer fileTo.Close()
+	defer func(fileTo *os.File) {
+		err := fileTo.Close()
+		if err != nil {
+			return
+		}
+	}(fileTo)
 
 	fileSize, err := getFileSize(fileFrom)
 	if err != nil {
 		return err
 	}
 
-	err = moveOffset(fileFrom, fileSize)
+	err = moveOffset(fileFrom, fileSize, offset)
 	if err != nil {
 		return err
 	}
 
-	err = startCopy(fileSize, fileFrom, fileTo)
+	err = startCopy(fileSize, fileFrom, fileTo, offset, limit)
 	if err != nil {
 		return err
 	}
@@ -50,8 +64,8 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	return nil
 }
 
-func checkOptions() error {
-	if from == "" || to == ""{
+func checkOptions(from, to string) error {
+	if from == "" || to == "" {
 		return ErrNoOption
 	}
 
@@ -62,7 +76,7 @@ func open(path string) (*os.File, error) {
 	file, err := os.Open(path)
 
 	if os.IsNotExist(err) {
-		return nil, ErrNoFile
+		return nil, ErrUnsupportedFile
 	}
 
 	return file, nil
@@ -86,18 +100,18 @@ func getFileSize(fileFrom *os.File) (int, error) {
 	return int(fileSize), nil
 }
 
-func moveOffset(fileFrom *os.File, fileSize int) error {
+func moveOffset(fileFrom *os.File, fileSize int, offset int64) error {
 	if offset != 0 {
 		_, err := fileFrom.Seek(offset, io.SeekStart)
 		if err != nil || int(offset) >= fileSize {
-			return ErrWrongOffset
+			return ErrOffsetExceedsFileSize
 		}
 	}
 
 	return nil
 }
 
-func startCopy(fileSize int, fileFrom *os.File, fileTo *os.File) error {
+func startCopy(fileSize int, fileFrom *os.File, fileTo *os.File, offset, limit int64) error {
 	count := fileSize - int(offset)
 	bar := pb.StartNew(count)
 	writtenTotal := 0
@@ -121,4 +135,3 @@ func startCopy(fileSize int, fileFrom *os.File, fileTo *os.File) error {
 
 	return nil
 }
-

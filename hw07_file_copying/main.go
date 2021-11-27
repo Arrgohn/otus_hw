@@ -20,42 +20,9 @@ func init() {
 func main() {
 	flag.Parse()
 
-	err := checkOptions()
-	if err != nil {
-		fmt.Println("No option error")
-		return
-	}
-
-	fileFrom, err := open(from)
-	defer fileFrom.Close()
-	if err != nil {
-		fmt.Println("No file error")
-		return
-	}
-
-	fileTo, err := create(to)
-	if err != nil {
-		//return 0, err
-	}
-	defer fileTo.Close()
-
-	fileSize, err := getFileSize(fileFrom)
+	err := Copy(from, to, offset, limit)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
-	err = moveOffset(fileFrom, fileSize)
-	if err != nil {
-		fmt.Println("offset error")
-		return
-	}
-
-	err = startCopy(int(fileSize), fileFrom, fileTo)
-	if  err != nil {
-		fmt.Println("smth wrong")
-		return
-	}
-
-	fmt.Println("Success")
 }
