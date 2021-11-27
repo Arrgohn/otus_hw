@@ -27,7 +27,7 @@ func TestCopy(t *testing.T) {
 	})
 
 	t.Run("file copied case", func(t *testing.T) {
-		_ = Copy("testdata/input.txt", "testdata/dgad.txt", 0, 0)
+		_ = Copy("testdata/out_offset0_limit10.txt", "testdata/dgad.txt", 0, 0)
 		require.FileExistsf(t, "testdata/dgad.txt", "File not copied")
 	})
 

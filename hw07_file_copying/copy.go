@@ -126,6 +126,10 @@ func startCopy(fileSize int, fileFrom *os.File, fileTo *os.File, offset, limit i
 			return ErrLimitExcess
 		}
 
+		if int(limit) == writtenTotal {
+			break
+		}
+
 		if err != nil {
 			return err
 		}
