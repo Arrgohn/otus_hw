@@ -83,7 +83,7 @@ func open(path string) (*os.File, error) {
 }
 
 func create(p string) (*os.File, error) {
-	if err := os.MkdirAll(filepath.Dir(p), 0776); err != nil {
+	if err := os.MkdirAll(filepath.Dir(p), 0o776); err != nil {
 		return nil, err
 	}
 	return os.Create(p)
@@ -122,12 +122,8 @@ func startCopy(fileSize int, fileFrom *os.File, fileTo *os.File, offset, limit i
 		written, err := io.CopyN(fileTo, fileFrom, 1)
 		writtenTotal += int(written)
 
-		if limit != 0 && writtenTotal > int(limit) {
+		if limit != 0 && writtenTotal > int(limit) || int(limit) == writtenTotal {
 			return ErrLimitExcess
-		}
-
-		if int(limit) == writtenTotal {
-			break
 		}
 
 		if err != nil {
