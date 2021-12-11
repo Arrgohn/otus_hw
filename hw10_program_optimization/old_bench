@@ -1,0 +1,11 @@
+goos: linux
+goarch: amd64
+pkg: github.com/Arrgohn/otus_hw/hw10_program_optimization
+cpu: Intel(R) Core(TM) i3-9100F CPU @ 3.60GHz
+BenchmarkGetDomainStat-4   	      18	 635594252 ns/op	306592808 B/op	 3145445 allocs/op
+BenchmarkGetDomainStat-4   	      18	 690988512 ns/op	306656801 B/op	 3145452 allocs/op
+BenchmarkGetDomainStat-4   	      16	 671420246 ns/op	306629919 B/op	 3145450 allocs/op
+BenchmarkGetDomainStat-4   	      16	 672315717 ns/op	306657467 B/op	 3145452 allocs/op
+BenchmarkGetDomainStat-4   	      16	 677331744 ns/op	306604398 B/op	 3145448 allocs/op
+PASS
+ok  	github.com/Arrgohn/otus_hw/hw10_program_optimization	62.792s
