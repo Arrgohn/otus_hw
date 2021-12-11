@@ -2,8 +2,11 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -42,10 +45,67 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			in: User{ID: "123", Name: "name", Age: 99, Email: "email", Role: "custom", Phones: []string{"+123456"}, meta: nil},
+			expectedErr: ValidationErrors{
+				ValidationError{
+					Field: "ID",
+					Err:   errors.New("len should be 36"),
+				},
+				ValidationError{
+					Field: "Age",
+					Err:   errors.New("should be less than 50"),
+				},
+				ValidationError{
+					Field: "Email",
+					Err:   errors.New("should fit ^\\w+@\\w+\\.\\w+$"),
+				},
+				ValidationError{
+					Field: "Role",
+					Err:   errors.New("should be in admin,stuff"),
+				},
+				ValidationError{
+					Field: "Phones",
+					Err:   errors.New("len should be 11"),
+				},
+			},
 		},
-		// ...
-		// Place your code here.
+		{
+			in: User{
+				ID:     "100000000020000000003000000000123456",
+				Name:   "name",
+				Age:    20,
+				Email:  "email@g.com",
+				Role:   "stuff",
+				Phones: []string{"01234567890"},
+			},
+			expectedErr: ValidationErrors{},
+		},
+		{
+			in: App{Version: "1.3456"},
+			expectedErr: ValidationErrors{ValidationError{
+				Field: "Version",
+				Err:   errors.New("len should be 5"),
+			}},
+		},
+		{
+			in:          App{Version: "12345"},
+			expectedErr: ValidationErrors{},
+		},
+		{
+			in:          Token{Header: []byte("head"), Payload: []byte("pay"), Signature: []byte("sign")},
+			expectedErr: ValidationErrors{},
+		},
+		{
+			in: Response{Code: 100, Body: ""},
+			expectedErr: ValidationErrors{ValidationError{
+				Field: "Code",
+				Err:   errors.New("should be in 200,404,500"),
+			}},
+		},
+		{
+			in:          Response{Code: 404, Body: ""},
+			expectedErr: ValidationErrors{},
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,7 +113,11 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
-			// Place your code here.
+			var validationErrors ValidationErrors
+
+			ok := errors.As(Validate(tt.in), &validationErrors)
+			require.True(t, ok)
+			require.Equal(t, tt.expectedErr, validationErrors)
 			_ = tt
 		})
 	}
