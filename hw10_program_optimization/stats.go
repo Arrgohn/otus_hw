@@ -23,10 +23,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 			return nil, err
 		}
 
-		sp := strings.Split(user.Email, ".")
-		dom := sp[len(sp)-1:][0]
-
-		if dom == domain {
+		if strings.Contains(user.Email, "."+domain) {
 			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]++
 		}
 	}
