@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net"
@@ -19,11 +18,9 @@ type TelnetClient interface {
 type Telnet struct {
 	adr     string
 	timeout time.Duration
-	ctx     context.Context
 	conn    net.Conn
 	in      io.ReadCloser
 	out     io.Writer
-	cl      io.Closer
 }
 
 func (t *Telnet) Connect() error {
@@ -37,8 +34,7 @@ func (t *Telnet) Connect() error {
 }
 
 func (t *Telnet) Close() error {
-	err := t.conn.Close()
-	if err != nil {
+	if err := t.conn.Close(); err != nil {
 		return err
 	}
 
@@ -46,8 +42,7 @@ func (t *Telnet) Close() error {
 }
 
 func (t *Telnet) Send() error {
-	_, err := io.Copy(t.conn, t.in)
-	if err != nil {
+	if _, err := io.Copy(t.conn, t.in); err != nil {
 		return fmt.Errorf("error occurred while sending: %w", err)
 	}
 
@@ -57,8 +52,7 @@ func (t *Telnet) Send() error {
 }
 
 func (t *Telnet) Receive() error {
-	_, err := io.Copy(t.out, t.conn)
-	if err != nil {
+	if _, err := io.Copy(t.out, t.conn); err != nil {
 		return fmt.Errorf("error occurred while receiving: %w", err)
 	}
 	fmt.Fprintln(os.Stderr, "...Connection was closed by peer")

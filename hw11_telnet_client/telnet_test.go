@@ -87,20 +87,20 @@ func TestTelnetClient(t *testing.T) {
 	t.Run("return error if connection failed", func(t *testing.T) {
 		var in io.ReadCloser
 		var out io.Writer
-		address := "123456"
+		address := "boo"
 		timeout := time.Duration(42)
 
 		client := NewTelnetClient(address, timeout, in, out)
 		err := client.Connect()
 
 		fmt.Println(err)
-		require.Equal(t, "connection error: dial tcp: address 123456: missing port in address", err.Error())
+		require.Equal(t, "connection error: dial tcp: address boo: missing port in address", err.Error())
 	})
 
 	t.Run("return error if connection failed", func(t *testing.T) {
 		var in io.ReadCloser
 		var out io.Writer
-		address := "123456:80"
+		address := "boo:80"
 		timeout := time.Duration(42)
 
 		client := NewTelnetClient(address, timeout, in, out)
