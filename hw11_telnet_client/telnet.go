@@ -34,11 +34,9 @@ func (t *Telnet) Connect() error {
 }
 
 func (t *Telnet) Close() error {
-	if err := t.conn.Close(); err != nil {
-		return err
-	}
+	err := t.conn.Close()
 
-	return nil
+	return err
 }
 
 func (t *Telnet) Send() error {
