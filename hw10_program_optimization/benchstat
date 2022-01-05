@@ -1,8 +1,8 @@
 name             old time/op    new time/op    delta
-GetDomainStat-4     670ms ± 5%     182ms ± 0%  -72.77%  (p=0.008 n=5+5)
+GetDomainStat-4     670ms ± 5%     141ms ± 0%  -78.94%  (p=0.008 n=5+5)
 
 name             old alloc/op   new alloc/op   delta
-GetDomainStat-4     307MB ± 0%      11MB ± 0%  -96.30%  (p=0.008 n=5+5)
+GetDomainStat-4     307MB ± 0%      17MB ± 0%  -94.38%  (p=0.008 n=5+5)
 
 name             old allocs/op  new allocs/op  delta
-GetDomainStat-4     3.15M ± 0%     1.42M ± 0%  -54.75%  (p=0.008 n=5+5)
+GetDomainStat-4     3.15M ± 0%     0.34M ± 0%  -89.35%  (p=0.008 n=5+5)
