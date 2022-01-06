@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"sync"
@@ -61,5 +63,50 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+
+	t.Run("creating new client returns correct instance", func(t *testing.T) {
+		var in io.ReadCloser
+		var out io.Writer
+		address := "otus.ru:80"
+		timeout := time.Duration(42)
+		var conn net.Conn
+
+		expectedClient := &Telnet{
+			adr:     address,
+			timeout: timeout,
+			in:      in,
+			out:     out,
+			conn:    conn,
+		}
+		client := NewTelnetClient(address, timeout, in, out)
+
+		require.Equal(t, expectedClient, client)
+	})
+
+	t.Run("return error if connection failed", func(t *testing.T) {
+		var in io.ReadCloser
+		var out io.Writer
+		address := "boo"
+		timeout := time.Duration(42)
+
+		client := NewTelnetClient(address, timeout, in, out)
+		err := client.Connect()
+
+		fmt.Println(err)
+		require.Equal(t, "connection error: dial tcp: address boo: missing port in address", err.Error())
+	})
+
+	t.Run("return error if connection failed", func(t *testing.T) {
+		var in io.ReadCloser
+		var out io.Writer
+		address := "boo:80"
+		timeout := time.Duration(42)
+
+		client := NewTelnetClient(address, timeout, in, out)
+		err := client.Connect()
+
+		fmt.Println(err)
+		require.Equal(t, "connection error: dial tcp: i/o timeout", err.Error())
 	})
 }
